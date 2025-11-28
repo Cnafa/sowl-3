@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #486966;
+  --primary-soft: #eef2f2;
+}
+
+body {
+  font-size: 14px;
+  color: #1e293b;
+  font-family: 'Hack', monospace;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #E5E7EB;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* Checkboxes */
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: all 150ms;
+}
+input[type="checkbox"]:checked {
+  background-color: #486966;
+  border-color: #486966;
+}
+input[type="checkbox"]:checked::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid #FFFFFF;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Editor Override */
+.font-vazir .ql-editor {
+  font-family: 'Vazirmatn', sans-serif !important;
+  text-align: right;
+  direction: rtl;
+}
