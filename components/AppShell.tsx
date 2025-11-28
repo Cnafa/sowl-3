@@ -48,7 +48,8 @@ interface AppShellProps {
     onDeleteSprint: (sprint: Sprint) => void;
     onRestoreSprint: (sprintId: string) => void;
     onEditWorkItem: (workItem: WorkItem) => void;
-    onItemStatusChange: (itemId: string, newStatus: Status) => void;
+    // Updated signature for atomic moves
+    onItemStatusChange: (itemId: string, newStatus: Status, targetSprintId?: string) => void;
     realtimeStatus: any;
     selectedSprint: Sprint | null | undefined;
     setSelectedSprintId: (sprintId: string | null) => void;
@@ -268,7 +269,7 @@ export const AppShell: React.FC<AppShellProps> = (props) => {
                     <KanbanBoard
                         workItems={filteredWorkItems}
                         allItemsInSprint={activeSprintItems}
-                        onItemStatusChange={props.onItemStatusChange}
+                        onItemMove={props.onItemStatusChange}
                         onSelectWorkItem={props.onSelectWorkItem}
                         groupBy={groupBy}
                         epics={enrichedEpics}

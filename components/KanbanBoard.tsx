@@ -15,7 +15,8 @@ interface KanbanBoardProps {
   workItems: WorkItem[];
   allItemsInSprint: WorkItem[];
   onSelectWorkItem: (workItem: WorkItem) => void;
-  onItemStatusChange: (itemId: string, newStatus: Status) => void;
+  // Refactored: Single handler for atomic moves (Status + Sprint + potentially Order)
+  onItemMove: (itemId: string, newStatus: Status, targetSprintId?: string) => void;
   groupBy: 'status' | 'epic';
   epics: Epic[];
   collapsedEpics: Set<string>;
@@ -46,7 +47,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     workItems,
     allItemsInSprint,
     onSelectWorkItem,
-    onItemStatusChange, 
+    onItemMove, 
     groupBy, 
     epics, 
     collapsedEpics, 
@@ -181,10 +182,20 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
     if (!item) return;
 
+    // Backend Integrity Check:
+    // If dropping onto a board column, the item MUST belong to the active sprint.
+    // If it was in backlog (no sprintId or different sprintId), we implicitly assign it to activeSprint.
+    const targetSprintId = activeSprint?.id;
+
     const allowedTransitions = WORKFLOW_RULES[item.status];
     if (allowedTransitions && allowedTransitions.includes(newStatus)) {
-        onItemStatusChange(workItemId, newStatus);
-    } else if (item.status !== newStatus) {
+        onItemMove(workItemId, newStatus, targetSprintId);
+    } else if (item.status === newStatus) {
+        // Same status drop - just ensure sprint binding if needed
+        if (item.sprintId !== targetSprintId) {
+             onItemMove(workItemId, newStatus, targetSprintId);
+        }
+    } else {
         console.warn("Invalid status transition attempted.");
     }
   };
@@ -200,6 +211,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
             {KANBAN_COLUMNS.map((column) => {
                 const zoneId = `${zonePrefix}_${column.status}`;
                 const isActiveZone = activeDropZone === zoneId;
+                // Backend integration note: We should sort items by item.orderIndex here
+                const sortedItems = [...items].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0));
                 
                 return (
                     <div
@@ -223,7 +236,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                             </span>
                         </h2>
                         <div className="flex-1 space-y-2 overflow-y-auto h-full pr-1 min-h-[100px]">
-                            {items
+                            {sortedItems
                             .filter((item) => item.status === column.status)
                             .map((item) => (
                                 <div key={item.id} draggable onDragStart={(e) => onDragStart(e, item.id)} onDragEnd={onDragEnd}>

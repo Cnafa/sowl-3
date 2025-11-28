@@ -439,9 +439,18 @@ const App: React.FC = () => {
                     }
                 }}
                 onEditWorkItem={setEditingWorkItem}
-                onItemStatusChange={(id, status) => {
+                // Refactored to handle generic move logic
+                onItemStatusChange={(id, status, targetSprintId) => {
                     const item = workItems.find(i => i.id === id);
-                    if (item) handleWorkItemUpdate({ ...item, status });
+                    if (item) {
+                        const update: Partial<WorkItem> = { status };
+                        // If moving to a board column and item has no sprint or different sprint, assign it
+                        if (targetSprintId && item.sprintId !== targetSprintId) {
+                            update.sprintId = targetSprintId;
+                            update.sprintBinding = 'manual'; // Explicit move binds manually
+                        }
+                        handleWorkItemUpdate({ ...item, ...update });
+                    }
                 }}
                 onDeleteItem={onRequestDeleteWorkItem}
                 realtimeStatus={connectionStatus}

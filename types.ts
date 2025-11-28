@@ -96,6 +96,7 @@ export interface WorkItem {
   teamId?: string;
   teamInfo?: TeamInfo;
   isUpdated?: boolean; // for real-time highlight
+  orderIndex?: number; // Backend integration: For Kanban sorting
 }
 
 export interface Comment {
